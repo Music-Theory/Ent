@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ent.Geometry {
-	class Polygon {
+	public class Polygon {
 
 		public List<Point> points;
 

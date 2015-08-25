@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ent.Data {
-	class Tree<T> {
+	public class Tree<T> {
 
 		/// <summary>
 		/// The root node.

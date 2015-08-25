@@ -56,11 +56,12 @@
     <Compile Include="Data\Node.cs" />
     <Compile Include="Data\Tree.cs" />
     <Compile Include="Entity.cs" />
+    <Compile Include="EntitySystem.cs" />
     <Compile Include="Geometry\Line.cs" />
     <Compile Include="Geometry\Point.cs" />
     <Compile Include="Geometry\Polygon.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Rendering\RenderHelper.cs" />
+    <Compile Include="Rendering\Graphics.cs" />
     <Compile Include="UI\Components\Clickable.cs" />
     <Compile Include="UI\Components\Legible.cs" />
     <Compile Include="UI\Components\Placeable.cs" />
@@ -71,7 +72,7 @@
     <Compile Include="Utility\Utility.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Foreign Libraries\SDL2.dll">
+    <Content Include="SDL2.dll">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

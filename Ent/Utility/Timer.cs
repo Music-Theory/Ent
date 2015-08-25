@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ent.Utility {
-	class Timer {
+	public class Timer {
 
 		public bool started = false;
 		public bool paused = false;

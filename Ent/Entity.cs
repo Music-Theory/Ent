@@ -14,9 +14,7 @@ namespace Ent {
 		public void remComponent(string name) { components.Remove(name); }
 
 		public void addComponents(List<Component> comps) {
-			if (comps == null) {
-				//Utility.Utility.erLogger.logGenericError("addComponents was called with a null list.");
-			} else {
+			if (comps != null) {
 				foreach (Component comp in comps) {
 					this.addComponent(comp);
 				}

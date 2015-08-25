@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Ent.UI {
-	class Screen {
+	public class Screen {
 
 		/// <summary>
 		/// Whether the screen is something that can be input to. If not, pass input to the simulation.

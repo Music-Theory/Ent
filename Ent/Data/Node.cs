@@ -9,7 +9,7 @@ namespace Ent.Data {
 	/// A node in a tree.
 	/// </summary>
 	/// <typeparam name="T">The type of the value of the node.</typeparam>
-	class Node<T> {
+	public class Node<T> {
 
 		Node<T> parent;
 
