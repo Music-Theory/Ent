@@ -35,9 +35,8 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\OpenTK\1.1\Binaries\OpenTK\Release\OpenTK.dll</HintPath>
+    <Reference Include="OpenGLDotNet">
+      <HintPath>..\..\OpenGLDotNet\bin\Release\OpenGLDotNet.dll</HintPath>
     </Reference>
     <Reference Include="SDL2-CS">
       <HintPath>..\..\SDL2-CS-master\bin\Release\SDL2-CS.dll</HintPath>
@@ -57,16 +56,18 @@
     <Compile Include="Data\Tree.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="EntitySystem.cs" />
-    <Compile Include="Geometry\Line.cs" />
-    <Compile Include="Geometry\Point.cs" />
-    <Compile Include="Geometry\Polygon.cs" />
+    <Compile Include="Geometry\Geometry.cs" />
+    <Compile Include="Geometry\Vector2.cs" />
+    <Compile Include="Geometry\Vector3.cs" />
+    <Compile Include="Geometry\Vector4.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Rendering\Graphics.cs" />
-    <Compile Include="UI\Components\Clickable.cs" />
+    <Compile Include="UI\Components\GameDisplay.cs" />
     <Compile Include="UI\Components\Legible.cs" />
     <Compile Include="UI\Components\Placeable.cs" />
-    <Compile Include="UI\Screen.cs" />
+    <Compile Include="UI\Components\Sizeable.cs" />
     <Compile Include="UI\Window.cs" />
+    <Compile Include="UI\WindowSystem.cs" />
     <Compile Include="Utility\ErrorLogger.cs" />
     <Compile Include="Utility\Timer.cs" />
     <Compile Include="Utility\Utility.cs" />
@@ -76,6 +77,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

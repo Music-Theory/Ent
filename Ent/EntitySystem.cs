@@ -13,6 +13,12 @@ namespace Ent {
 			return currentKey - 1;
 		}
 
+		public static int makeEntity<T>(int key, Dictionary<int, T> dict, T ent) {
+			dict.Add(key, ent);
+			key++;
+			return key - 1;
+		}
+
 		public static void removeEntity(int key) {
 			entitiesMaster.Remove(key);
 		}

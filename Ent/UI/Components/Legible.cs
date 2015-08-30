@@ -6,29 +6,23 @@ using System.Threading.Tasks;
 
 namespace Ent.UI.Components {
 	/// <summary>
-	/// Allows the entity to show text.
+	/// A component that allows its entity to display text.
 	/// </summary>
 	public class Legible : Component {
 
 		/// <summary>
-		/// The text itself.
+		/// The text displayed in the entity.
 		/// </summary>
-		public string text;
-
-		/// <summary>
-		/// Left = 0, Center = 1, Right = 2
-		/// </summary>
-		public byte justification;
+		string text;
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		/// <param name="text">What the entity says.</param>
-		/// <param name="justify">The justification of the text. (Left = 0, Center = 1, Right = 2)</param>
-		public Legible(string text, byte justification) {
+		/// <param name="text">Text</param>
+		public Legible(string text) {
 			this.text = text;
-			this.justification = justification;
-			name = "Legible";
+			this.name = "Legible";
 		}
+
 	}
 }
