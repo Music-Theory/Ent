@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace Ent.Data {
 	/// <summary>
@@ -26,28 +22,28 @@ namespace Ent.Data {
 		/// Adds a node to the list of children. If children == null, it makes a new list for it.
 		/// </summary>
 		/// <param name="a">The value of the node to be added.</param>
-		public void add(T a) {
+		public void Add(T a) {
 			if (children == null) {
 				children = new List<Node<T>>();
 			}
 			children.Add(new Node<T>(a, this));
 		}
 
-		public bool remove(T r) {
+		public bool Remove(T r) {
 			if (children == null) {
 				return false;
 			}
-			return children.Remove(getFirst(r));
+			return children.Remove(GetFirst(r));
 		}
 
-		public Node<T> getFirst(T val) {
+		public Node<T> GetFirst(T val) {
 			Node<T> candidate = null;
-			if (this.value.Equals(val)) {
+			if (value.Equals(val)) {
 				return this;
 			}
 			Node<T> temp;
 			foreach (Node<T> n in children) {
-				temp = n.getFirst(val);
+				temp = n.GetFirst(val);
 				if (temp != null) {
 					candidate = temp;
 					break;
@@ -56,13 +52,13 @@ namespace Ent.Data {
 			return candidate;
 		}
 
-		public List<Node<T>> getAll(T val) {
+		public List<Node<T>> GetAll(T val) {
 			List<Node<T>> nodes = new List<Node<T>>();
 
-			if (this.value.Equals(val)) { nodes.Add(this); }
+			if (value.Equals(val)) { nodes.Add(this); }
 			
 			foreach (Node<T> n in children) {
-				nodes.AddRange(n.getAll(val));
+				nodes.AddRange(n.GetAll(val));
 			}
 
 			return nodes;

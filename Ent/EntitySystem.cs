@@ -3,24 +3,24 @@
 namespace Ent {
 	public static class EntitySystem {
 
-		public static Dictionary<int, Entity> entitiesMaster = new Dictionary<int, Entity>();
+		public static readonly Dictionary<int, Entity> ENTITIES_MASTER = new Dictionary<int, Entity>();
 
 		static int currentKey = 1;
 
-		public static int makeEntity() {
-			entitiesMaster.Add(currentKey, new Entity());
+		public static int MakeEntity() {
+			ENTITIES_MASTER.Add(currentKey, new Entity());
 			currentKey++;
 			return currentKey - 1;
 		}
 
-		public static int makeEntity<T>(int key, Dictionary<int, T> dict, T ent) {
+		public static int MakeEntity<T>(int key, Dictionary<int, T> dict, T ent) {
 			dict.Add(key, ent);
 			key++;
 			return key - 1;
 		}
 
-		public static void removeEntity(int key) {
-			entitiesMaster.Remove(key);
+		public static void RemoveEntity(int key) {
+			ENTITIES_MASTER.Remove(key);
 		}
 
 	}

@@ -1,9 +1,6 @@
-﻿using Ent.Geometry;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Ent.Geometry;
 
 namespace Ent.UI {
 	/// <summary>
@@ -31,7 +28,7 @@ namespace Ent.UI {
 			RESIZEABLE = 0x02,
 			MOBILE = 0x04,
 			CLOSEABLE = 0x08,
-			BORDERLESS = 0x16,
+			BORDERLESS = 0x16
 		}
 
 		/// <summary>
@@ -62,15 +59,15 @@ namespace Ent.UI {
 		/// <param name="loc">The location of the window.</param>
 		/// <param name="size">The size of the window.</param>
 		/// <returns>The key corresponding to the window.</returns>
-		public static int makeWindow(Vector2<uint> loc, Vector2<uint> size) {
-			return EntitySystem.makeEntity(currentKey, windowDict, new Window(loc, size));
+		public static int MakeWindow(Vector2<uint> loc, Vector2<uint> size) {
+			return EntitySystem.MakeEntity(currentKey, windowDict, new Window(loc, size));
 		}
 		/// <summary>
 		/// Removes a window from the window dictionary.
 		/// </summary>
 		/// <param name="key">The key of the window.</param>
 		/// <returns>True if the removal operation was successful.</returns>
-		public static bool removeWindow(int key) {
+		public static bool RemoveWindow(int key) {
 			return windowDict.Remove(key);
 		}
 
@@ -83,7 +80,7 @@ namespace Ent.UI {
 		/// </summary>
 		/// <param name="key">The key of the window.</param>
 		/// <returns>The window, if it exists. NULL if it doesn't.</returns>
-		public static Window getWindow(int key) {
+		public static Window GetWindow(int key) {
 			return windowDict[key];
 		}
 

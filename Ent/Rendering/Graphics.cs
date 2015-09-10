@@ -1,251 +1,119 @@
 ﻿using System;
+using OpenTK;
+using OpenTK.Graphics.OpenGL;
 using System.Collections.Generic;
-using SDL2;
-using OpenGLDotNet;
-
-using System.Runtime.InteropServices;
+using System.IO;
 
 namespace Ent.Rendering {
+
 	/// <summary>
-	/// Handles rendering of things using SDL and OpenGL.
+	///     A helper class for rendering things and setting up OpenGL.
 	/// </summary>
 	public static class Graphics {
+		#region Variables
 
-		#region Temporary
+		/// <summary>
+		///     The current shader program.
+		/// </summary>
+		static int currentShader;
 
-		static float[] vertexPositions = {
-			0.75f, 0.75f, 0.0f, 1.0f,
-			0.75f, -0.75f, 0.0f, 1.0f,
-			-0.75f, -0.75f, 0.0f, 1.0f,
-		};
+		/// <summary>
+		///     The perspective matrix (For transforming things into camera space)
+		/// </summary>
+		static Matrix4 perspectiveMatrix;
 
-		static uint[] positionBufferObject;
-		static uint[] vao;
+		/// <summary>
+		///     The uniform location for the perspective matrix.
+		/// </summary>
+		static int perspectiveMatrixUnif;
+
+		/// <summary>
+		///     The frustum scale.
+		/// </summary>
+		static float frustumScale;
 
 		#endregion
 
-		#region Pointers
+		#region Window
 
 		/// <summary>
-		/// An IntPtr to the renderer provided by SDL.
+		///     What to do when the window resizes.
 		/// </summary>
-		public static IntPtr renderer;
-		/// <summary>
-		/// An IntPtr to the window provided by SDL.
-		/// </summary>
-		public static IntPtr window;
-		/// <summary>
-		/// An IntPtr to the GL Context provided by SDL.
-		/// </summary>
-		public static IntPtr glContext;
+		/// <param name="sender">Where the resize event came from.</param>
+		/// <param name="e">The arguments of the resize event.</param>
+		/// <param name="width">The new width of the window.</param>
+		/// <param name="height">The new height of the window.</param>
+		public static void Resize(object sender, EventArgs e, int width, int height) {
+			perspectiveMatrix.M11 = frustumScale / ( width / (float) height ); // THE CAST IS INTEGRAL TO THIS
+			perspectiveMatrix.M22 = frustumScale;
 
-		#endregion
+			GL.UseProgram(currentShader);
+			GL.UniformMatrix4(perspectiveMatrixUnif, false, ref perspectiveMatrix);
+			GL.UseProgram(0);
 
-		#region Shaders
-
-		static uint shaderProgram;
-
-		static string[] strVertexShader = {
-			"#version 330\n",
-			"layout(location = 0) in vec4 position;\n",
-			"void main()\n",
-			"{\n",
-			"   gl_Position = position;\n",
-			"}\n"
-		};
-
-		static string[] strFragmentShader = {
-			"#version 330\n",
-			"out vec4 outputColor;\n",
-			"void main()\n",
-			"{\n",
-			"   outputColor = vec4(1.0f, 1.0f, 1.0f, 1.0f);\n",
-			"}\n"
-		};
-
-		#endregion
-
-		#region Init
-
-		/// <summary>
-		/// Initializes Ent graphics. Makes a renderer, a window, and a GL Context using SDL.
-		/// </summary>
-		/// <returns>True if nothing failed.</returns>
-		public static bool init() {
-			if (SDL_image.IMG_Init(SDL_image.IMG_InitFlags.IMG_INIT_PNG) == 0) {
-				//Utility.erLogger.logSDLError("SDL_image.IMG_Init");
-				return false;
-			}
-
-			window = SDL.SDL_CreateWindow("Soul", 10, 10, (int) Utility.Utility.RES.x, (int) Utility.Utility.RES.y, SDL.SDL_WindowFlags.SDL_WINDOW_SHOWN | SDL.SDL_WindowFlags.SDL_WINDOW_OPENGL);
-			if (window == IntPtr.Zero) {
-				//Utility.erLogger.logSDLError("SDL_CreateWindow");
-				return false;
-			}
-
-			renderer = SDL.SDL_CreateRenderer(window, -1, 2 | 4); //2 = accelerated, 4 = vsync
-			if (renderer == IntPtr.Zero) {
-				//Utility.erLogger.logSDLError("SDL_CreateRenderer");
-				return false;
-			}
-
-			return initGL();
-		}
-		/// <summary>
-		/// Unload all of the graphics stuff. Right now this just calls SDL_Quit.
-		/// </summary>
-		public static void quit() {
-			SDL.SDL_Quit();
+			GL.Viewport(0, 0, width, height);
 		}
 
+		#endregion
+
+		#region Init & Quit
+
 		/// <summary>
-		/// Initializes OpenGL.
+		///     Initialize.
 		/// </summary>
-		/// <returns>True if successful.</returns>
-		public static bool initGL() {
-
-			glContext = SDL.SDL_GL_CreateContext(window);
-			SDL.SDL_GL_MakeCurrent(window, glContext);
-
-			initShaders();
-			initVertexBuffer();
-
-			GL.GenVertexArrays(1, vao);
-			GL.BindVertexArray(vao[0]);
-
-			GL.ClearColor(0f, 0f, 0f, 0f);
-
+		/// <returns>True if success.</returns>
+		public static bool Init() {
+			Utility.Utility.OSTREAM.WriteLine("Loading Ent Graphics...");
 			return true;
 		}
 
 		/// <summary>
-		/// Initializes OpenGL shaders.
+		///     Quit.
 		/// </summary>
-		public static void initShaders() {
-			List<uint> shaderList = new List<uint>();
-
-			shaderList.Add(createShader(GL.GL_VERTEX_SHADER, strVertexShader));
-			shaderList.Add(createShader(GL.GL_FRAGMENT_SHADER, strVertexShader));
-
-			shaderProgram = createProgram(shaderList);
-
-			foreach (uint shader in shaderList) { GL.DeleteShader(shader); }
-		}
-		/// <summary>
-		/// Initializes the vertex buffer.
-		/// </summary>
-		public static void initVertexBuffer() {
-			GL.GenBuffers(1, positionBufferObject);
-
-			GL.BindBuffer(GL.GL_ARRAY_BUFFER, positionBufferObject[0]);
-			unsafe {
-				fixed (float* vPPointer = vertexPositions) {
-					GL.BufferData(GL.GL_ARRAY_BUFFER, Marshal.SizeOf(vertexPositions), new IntPtr(vPPointer), GL.GL_STATIC_DRAW);
-				}
-			}
-
-			GL.BindBuffer(GL.GL_ARRAY_BUFFER, 0);
-		}
-
-		#endregion
-
-		#region Render Methods
-
-		/// <summary>
-		/// Clears the buffer to whatever color GL.ClearColor is set to.
-		/// </summary>
-		public static void renderClear() {
-			GL.Clear(GL.GL_COLOR_BUFFER_BIT);
-		}
-		/// <summary>
-		/// I think this swaps the buffers and, therefore, puts everything on the screen?
-		/// </summary>
-		public static void renderPresent() {
-			GLUT.SwapBuffers();
-		}
-
-		#endregion
-
-		#region Texture Methods
-
-		/// <summary>
-		/// Renders a texture, or part of one.
-		/// </summary>
-		/// <param name="tex">IntPtr to the texture.</param>
-		/// <param name="renderer">IntPtr to the renderer.</param>
-		/// <param name="sourceRect">IntPtr to a rectangle describing the portion of the texture to be rendered.</param>
-		/// <param name="x">X of the top left corner of the destination rect.</param>
-		/// <param name="y">Y of the top left corner of the destination rect.</param>
-		/// <param name="h">Height of the destination rect.</param>
-		/// <param name="w">Width of the destination rect.</param>
-		public static void renderTexture(IntPtr tex, IntPtr renderer, IntPtr sourceRect, int x, int y, int h, int w) {
-			SDL.SDL_Rect rect = new SDL.SDL_Rect();
-			rect.x = x;
-			rect.y = y;
-			rect.w = w;
-			rect.h = h;
-
-			//uint format = SDL2.SDL.SDL_PIXELFORMAT_UNKNOWN;
-			//int access = (int) SDL2.SDL.SDL_TextureAccess.SDL_TEXTUREACCESS_STATIC;
-			//SDL2.SDL.SDL_QueryTexture(tex.texture, out format, out access, out rect.w, out rect.h); //this stuff is used to get the dimensions of the image
-			SDL.SDL_RenderCopy(renderer, tex, sourceRect, ref rect);
-		}
-
-		/// <summary>
-		/// Creates a texture from an image.
-		/// </summary>
-		/// <param name="image">The image to create the texture from. Usually created with loadImage()</param>
-		/// <param name="freeSurface">Frees the image memory. Make this true if this is the last time you are using the image.</param>
-		/// <returns>An IntPtr to the texture.</returns>
-		public static IntPtr createTexture(IntPtr image, bool freeSurface = false) {
-			IntPtr texture = SDL.SDL_CreateTextureFromSurface(renderer, image);
-			if (freeSurface) {
-				SDL.SDL_FreeSurface(image);
-			}
-			if (texture == IntPtr.Zero) {
-				//Utility.erLogger.logSDLError("SDL_CreateTextureFromSurface");
-				return IntPtr.Zero;
-			}
-			return texture;
-		}
-
-		#endregion
-
-		#region Image Methods
-
-		/// <summary>
-		/// Loads an image using a path to the image.
-		/// </summary>
-		/// <param name="imagePath">The path to the image.</param>
-		/// <returns>An IntPtr to the image that was loaded.</returns>
-		public static IntPtr loadImage(string imagePath) {
-			IntPtr image = SDL_image.IMG_Load(imagePath);
-			if (image == IntPtr.Zero) {
-				//Utility.erLogger.logSDLError("SDL_Image.IMG_Load");
-				return IntPtr.Zero;
-			}
-			return image;
-		}
+		public static void Quit() { Utility.Utility.OSTREAM.WriteLine("Unloading Ent Graphics..."); }
 
 		#endregion
 
 		#region Shader Methods
 
 		/// <summary>
-		/// Creates a shader.
+		/// Creates a shader from a text file.
 		/// </summary>
-		/// <param name="shaderType">The type of the shader. Defined by constants in GL.</param>
-		/// <param name="shaderFile">The array of strings that make up the shader.</param>
-		/// <returns>A uint representing the compiled shader.</returns>
-		static uint createShader(uint shaderType, string[] shaderFile) {
-			uint shader = GL.CreateShaderObjectARB(shaderType);
-			GL.ShaderSource(shader, shaderFile.Length, shaderFile, null);
+		/// <param name="type">The type of shader.</param>
+		/// <param name="fileName">The name of the file.</param>
+		/// <returns>An integer ID referring to the shader.</returns>
+		public static int LoadShader(ShaderType type, string fileName) {
+
+			List<string> shaderData = new List<string>();
+
+			StreamReader shaderFile = new StreamReader(fileName);
+
+			Console.Out.WriteLine("Loading shader: " + fileName);
+
+			while (!shaderFile.EndOfStream) {
+				shaderData.Add(shaderFile.ReadLine() + "\n"); // Apparently GLSL requires a newline at the end of every string
+				Console.Out.Write(shaderData[shaderData.Count - 1]);
+			}
+
+			return CreateShader(type, shaderData.ToArray());
+		}
+
+		/// <summary>
+		/// Creates a shader from a string.
+		/// </summary>
+		/// <param name="type">The type of shader (For example, vertex or fragment)</param>
+		/// <param name="shaderFile">The shader itself. Each line is an entry in the array.</param>
+		/// <returns>An integer ID referring to the shader.</returns>
+		public static int CreateShader(ShaderType type, string[] shaderFile) {
+			int shader = GL.CreateShader(type);
+			//const char* strFileData = strShaderFile.c_str();
+			GL.ShaderSource(shader, shaderFile.Length, shaderFile, (int[])null); // lol apparently you can cast null
 
 			GL.CompileShader(shader);
 
-			// Error logging that I don't feel like messing with right now.
+			// Error checking
 			/*int status;
-			GL.GetShaderiv(shader, GL.GL_COMPILE_STATUS, status);
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &status);
 			if (status == GL_FALSE) {
 				GLint infoLogLength;
 				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -268,20 +136,22 @@ namespace Ent.Rendering {
 		}
 
 		/// <summary>
-		/// Makes a GLSL shader program out of a list of shaders and then returns a uint that represents it.
+		/// Makes a shader program.
 		/// </summary>
-		/// <param name="shaderList">The list of shaders to be attached to the program.</param>
-		/// <returns>A uint representing the program that was made.</returns>
-		static uint createProgram(List<uint> shaderList) {
-			uint program = GL.CreateProgramObjectARB();
+		/// <param name="shaderList">An ID list of shaders to be added to the program.</param>
+		/// <returns>An integer ID referring to the shader program.</returns>
+		public static int CreateProgram(List<int> shaderList) {
+			int program = GL.CreateProgram();
 
-			foreach (uint shader in shaderList) {
+			foreach (int shader in shaderList) {
 				GL.AttachShader(program, shader);
 			}
 
 			GL.LinkProgram(program);
 
-			// This is error checking and I don't feel like adding it right now
+			Console.Out.WriteLine(GL.GetError());
+
+			// Error Checking
 			/*GLint status;
 			glGetProgramiv(program, GL_LINK_STATUS, &status);
 			if (status == GL_FALSE) {
@@ -294,14 +164,18 @@ namespace Ent.Rendering {
 				delete[] strInfoLog;
 			}*/
 
-			foreach (uint shader in shaderList) {
+			foreach (int shader in shaderList) {
 				GL.DetachShader(program, shader);
+			}
+
+			foreach (int shader in shaderList) {
+				GL.DeleteShader(shader);
 			}
 
 			return program;
 		}
 
 		#endregion
-
 	}
+
 }

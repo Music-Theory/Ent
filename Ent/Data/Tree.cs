@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Ent.Data {
+﻿namespace Ent.Data {
 	public class Tree<T> {
 
 		/// <summary>
@@ -17,8 +11,8 @@ namespace Ent.Data {
 		/// </summary>
 		int count;
 
-		public delegate Node<T> nodePlacementDelegate(Node<T> rootNode);
-		public static nodePlacementDelegate defaultPlacement = (Node<T> rootNode) => { return rootNode; };
+		public delegate Node<T> NodePlacementDelegate(Node<T> rootNode);
+		public static NodePlacementDelegate defaultPlacement = rootNode => rootNode;
 
 		public Tree(T root) {
 			this.root = new Node<T>(root);
@@ -29,13 +23,13 @@ namespace Ent.Data {
 		/// </summary>
 		/// <param name="val">The value to be added.</param>
 		/// <param name="nodePlacement">The method for determining where to place it. Use Tree.defaultPlacement if you don't care.</param>
-		public void add(T val, nodePlacementDelegate nodePlacement) {
-			nodePlacement(root).add(val);
+		public void Add(T val, NodePlacementDelegate nodePlacement) {
+			nodePlacement(root).Add(val);
 			count++;
 		}
 
-		public Node<T> get(T val) {
-			return root.getFirst(val);
+		public Node<T> Get(T val) {
+			return root.GetFirst(val);
 		}
 
 	}

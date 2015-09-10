@@ -1,9 +1,5 @@
-﻿using Ent.Geometry;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Ent.Geometry;
 
 namespace Ent.UI {
 	/// <summary>
@@ -39,12 +35,11 @@ namespace Ent.UI {
 		#region Init
 
 		/// <summary>
-		/// Constructor. All numbers are in pixels.
+		/// Constructor.
 		/// </summary>
-		/// <param name="x">X</param>
-		/// <param name="y">Y</param>
-		/// <param name="width">Width</param>
-		/// <param name="height">Height</param>
+		/// <param name="loc">Location in pixels.</param>
+		/// <param name="size">Location in pixels.</param>
+		/// <param name="propFlags">Window property flags. (Such as borderless)</param>
 		public Window(Vector2<uint> loc, Vector2<uint> size, WindowSystem.WindowProperty propFlags = 0) {
 			this.loc = loc;
 			this.size = size;
@@ -60,9 +55,9 @@ namespace Ent.UI {
 		/// </summary>
 		/// <param name="comps">List of components of the content</param>
 		/// <returns>The key of the entity.</returns>
-		public int addContent(List<Component> comps) {
-			int ent = EntitySystem.makeEntity();
-			EntitySystem.entitiesMaster[ent].addComponents(comps);
+		public int AddContent(List<Component> comps) {
+			int ent = EntitySystem.MakeEntity();
+			EntitySystem.ENTITIES_MASTER[ent].AddComponents(comps);
 			return ent;
 		}
 
