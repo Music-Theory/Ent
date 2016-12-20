@@ -5,19 +5,21 @@ using System.Linq;
 namespace Ent {
 	
 	public class ComponentEventArgs : EventArgs {
-		public string compName;
-		public ComponentEventArgs(string compName) { this.compName = compName; }
-	}
 
-	public delegate void AddedCompHandler(Entity sender, ComponentEventArgs e);
-	public delegate void RemovedCompHandler(Entity sender, ComponentEventArgs e);
-	public delegate void DestroyedEventHandler(Entity sender, EventArgs e);
+		public uint id;
+		public string compName;
+
+		public ComponentEventArgs(uint id, string compName) {
+			this.id = id;
+			this.compName = compName;
+		}
+	}
 
 	public class Entity {
 
-		public event AddedCompHandler AddedComp;
-		public event RemovedCompHandler RemovedComp;
-		public event DestroyedEventHandler Destroyed;
+		public event EventHandler<ComponentEventArgs> AddedComp;
+		public event EventHandler<ComponentEventArgs> RemovedComp;
+		public event EventHandler Destroyed;
 
 		internal Pool pool;
 
@@ -45,16 +47,19 @@ namespace Ent {
 			ent.Destroyed?.Invoke(ent, EventArgs.Empty);
 		}
 
+		public bool Contains(string compName) { return components.ContainsKey(compName); }
+
 		public void Add(Component comp) {
+			if (comp == null) { return; }
 			components.Add(comp.Name, comp);
-			comp.entity = ID;
-			AddedComp?.Invoke(this, new ComponentEventArgs(comp.Name));
+			comp.Entity = this;
+			AddedComp?.Invoke(this, new ComponentEventArgs(id, comp.Name));
 		}
 
 		public bool Rem(string name) {
 			if (!components.ContainsKey(name)) { return false; }
-			RemovedComp?.Invoke(this, new ComponentEventArgs(name));
-			components[name].entity = 0;
+			RemovedComp?.Invoke(this, new ComponentEventArgs(id, name));
+			components[name].Entity = null;
 			components.Remove(name);
 			return true;
 		}
@@ -65,9 +70,12 @@ namespace Ent {
 			}
 		}
 
-		public Component Get(string name) { return components[name]; }
-
-		public Component this[string key] => Get(key);
+		public Component this[string key] {
+			get {
+				if (!components.ContainsKey(key)) { return null; }
+				return components[key];
+			}
+		}
 
 		public override string ToString() { return ID.ToString(); }
 
