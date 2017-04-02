@@ -38,11 +38,15 @@ namespace Ent {
 
 		public uint ID => id;
 
-		internal Entity() { this.id = 0; }
+		public Entity() { this.id = 0; }
 
-		internal static void DestroyEntity(Entity ent) {
+		static internal void DestroyEntity(Entity ent) {
 			List<string> toRemove = ent.components.Select(comp => comp.Key).ToList();
-			foreach (string key in toRemove) { ent.Rem(key); }
+			foreach (string key in toRemove) {
+				Component comp = ent[key];
+				ent.Rem(key);
+				comp.Destroy();
+			}
 			ent.pool = null;
 			ent.Destroyed?.Invoke(ent, EventArgs.Empty);
 		}

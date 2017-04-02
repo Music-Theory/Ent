@@ -48,15 +48,16 @@ namespace Ent {
 		public readonly Dictionary<uint, Entity> entities = new Dictionary<uint, Entity>();
 
 		public Entity this[uint key] {
-			get { return entities[key]; }
+			get { return entities.ContainsKey(key) ? entities[key] : null; }
 			set {
 				if (value == null) {
-					DestEnt(key);
+					if (Contains(key)) { DestEnt(key); }
 					return;
 				}
 				if (cKey <= key) { cKey = key + 1; } else { DestEnt(key); }
 				value.id = key;
 				entities[key] = value;
+				value.pool?.RemEnt(value);
 				value.pool = this;
 				value.AddedComp += OnCompAddedToEnt;
 				value.RemovedComp += OnCompRemovedFromEnt;
@@ -90,7 +91,6 @@ namespace Ent {
 			Entity ent = entities[id];
 			entities.Remove(id);
 			EntRemoved?.Invoke(this, new EntEventArgs(ent));
-			ent.id = 0;
 			ent.pool = null;
 			return true;
 		}
